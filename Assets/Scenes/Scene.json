@@ -1,0 +1,83 @@
+{
+  "Lights": [
+    {
+      "Shader": "Color",
+      "Model": "../Assets/Models/Sphere.obj",
+      "Position": {
+        "x": 3.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "Scale": {
+        "x": 0.1,
+        "y": 0.1,
+        "z": 0.1
+      },
+      "LightColor": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0
+      },
+      "AmbientColor": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0
+      },
+      "SpecularColor": {
+        "r": 3.0,
+        "g": 3.0,
+        "b": 3.0
+      }
+    }
+  ],
+  "Meshes": [
+    {
+      "Shader": "Diffuse",
+      "Model": "../Assets/Models/Fighter.ase",
+      "Position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "Scale": {
+        "x": 0.002,
+        "y": 0.002,
+        "z": 0.002
+      },
+      "SpecularStrength": 8.0,
+      "RotationRate": 1.0,
+      "InstanceCount": 0.0,
+      "InstanceXRange": 0.0,
+      "InstanceYRange": 0.0,
+      "InstanceZRange": 0.0
+    }
+  ],
+  "Fonts": [
+    {
+      "Name": "Arial",
+      "Font": {
+        "Shader": "Font",
+        "Font": "../Assets/Fonts/arial.ttf",
+        "Size": 100
+      }
+    }
+  ],
+  "TextController": {
+    "Font": "Arial"
+  },
+  "Skybox": {
+    "Shader": "Skybox",
+    "Model": "../Assets/Models/SkyBox.obj",
+    "Faces": [
+      "../Assets/Textures/Skybox/right.png",
+      "../Assets/Textures/Skybox/left.png",
+      "../Assets/Textures/Skybox/top.png",
+      "../Assets/Textures/Skybox/bottom.png",
+      "../Assets/Textures/Skybox/front.png",
+      "../Assets/Textures/Skybox/back.png"
+    ]
+  },
+  "PostProcessor": {
+    "Shader": "Default"
+  }
+}

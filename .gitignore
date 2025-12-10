@@ -1,0 +1,7 @@
+.vs/*
+.git/*
+.vscode/*
+x64/*
+Debug/*
+OpenGL/x64/*
+OpenGL/Debug/*

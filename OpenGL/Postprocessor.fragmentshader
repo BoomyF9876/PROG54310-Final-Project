@@ -1,0 +1,23 @@
+#version 330
+
+in vec2 retTexCoords;
+
+out vec4 FragColor;
+
+uniform sampler2D screenTexture;
+uniform sampler2D depthSampler;
+
+const float offset = 1.0 / 300.0;
+float low1 = 0.8f;
+float high1 = 1.0f;
+float low2 = 0.0f;
+float high2 = 1.0f;
+
+void main()
+{
+    vec3 col = texture(screenTexture, retTexCoords).rgb;
+    FragColor = vec4(col, 1.0);
+    
+    // float depthValue = texture(depthSampler, retTexCoords.st).r;
+    // float remappedValue = low2 + (depthValue - low1) * ((high2 - low2) / (high1 - low1));
+}
