@@ -25,7 +25,10 @@ void Mesh::Create(json::JSON& jsonData)
 
     if (jsonData.hasKey("Position")) LoadVec3(jsonData, "Position", position);
     if (jsonData.hasKey("RotationRate")) rotationRate = Get(jsonData, "RotationRate").ToFloat();
-    if (jsonData.hasKey("Scale")) LoadVec3(jsonData, "Scale", scale);
+    if (jsonData.hasKey("Scale")) {
+        LoadVec3(jsonData, "Scale", scale);
+        initScale = scale;
+    }
 
     if (jsonData.hasKey("LightDirection")) LoadVec3(jsonData, "LightDirection", lightDirection);
     lightDirection = glm::normalize(lightDirection);
@@ -34,8 +37,6 @@ void Mesh::Create(json::JSON& jsonData)
     if (jsonData.hasKey("AmbientColor")) LoadVec3(jsonData, "AmbientColor", ambientColor);
     if (jsonData.hasKey("SpecularColor")) LoadVec3(jsonData, "SpecularColor", specularColor);
     if (jsonData.hasKey("SpecularStrength")) specularStrength = Get(jsonData, "SpecularStrength").ToFloat();
-
-    //if (jsonData.hasKey("LightType")) lightType = Get(jsonData, "LightType").ToString();
 
     if (jsonData.hasKey("PointLightconstant")) pointLightconstant = Get(jsonData, "PointLightconstant").ToFloat();
     if (jsonData.hasKey("PointLightlinear")) pointLightlinear = Get(jsonData, "PointLightlinear").ToFloat();
@@ -285,7 +286,7 @@ void Mesh::Render(glm::mat4 _wvp, Mesh* _light, int count)
 
     if (enableInstancing)
     {
-        glDrawArraysInstanced(GL_TRIANGLES, 0, vertexData.size() / vertexStride, count);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, vertexData.size() / vertexStride, instanceCount);
     }
     else
     {

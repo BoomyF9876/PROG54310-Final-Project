@@ -62,6 +62,8 @@ private:
 	TextController* textController = nullptr;
 	Camera* camera = nullptr;
 
+	glm::vec3 txtColor = {1.0f, 1.0f, 0.0f};
+	double xpos, ypos;
 	int meshCount = 100;
 	GLuint vao;
 

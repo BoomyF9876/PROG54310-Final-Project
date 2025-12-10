@@ -17,7 +17,10 @@ namespace OpenGL {
 	public ref class ToolWindow : public System::Windows::Forms::Form
 	{
 	public:
-		static bool moveLight, posColor, cubeToSphere, isResetLightClicked, isResetSuzClicked;
+		float specularStrength = 0.0, fighterRotation = 0.0;
+		float specularColorR = 0.0, specularColorG = 0.0, specularColorB = 0.0;
+		bool moveLight, transform, waterScene, spaceScene;
+		bool isResetLightClicked, isResetTransClicked;
 	private: System::Windows::Forms::RadioButton^ radioButton1;
 	private: System::Windows::Forms::RadioButton^ radioButton2;
 	private: System::Windows::Forms::RadioButton^ radioButton3;
@@ -57,8 +60,38 @@ namespace OpenGL {
 		{
 			InitializeComponent();
 			moveLight = this->radioButton1->Checked;
-			posColor = this->radioButton2->Checked;
-			cubeToSphere = this->radioButton3->Checked;
+			transform = this->radioButton2->Checked;
+			waterScene = this->radioButton3->Checked;
+			spaceScene = this->radioButton4->Checked;
+		}
+
+		void SetRotationRate(float _rotation)
+		{
+			fighterRotation = _rotation;
+			this->trackBar1->Value = fighterRotation;
+			label2->Text = fighterRotation.ToString();
+		}
+
+		void SetSpecularStrength(float _strength)
+		{
+			specularStrength = _strength;
+			this->trackBar2->Value = specularStrength;
+			label3->Text = specularStrength.ToString();
+		}
+
+		void SetColorRGB(float _r, float _g, float _b)
+		{
+			specularColorR = _r;
+			specularColorG = _g;
+			specularColorB = _b;
+
+			label7->Text = specularColorR.ToString();
+			label8->Text = specularColorG.ToString();
+			label10->Text = specularColorB.ToString();
+
+			trackBar3->Value = _r * trackBar3->Maximum;
+			trackBar4->Value = _g * trackBar4->Maximum;
+			trackBar5->Value = _b * trackBar5->Maximum;
 		}
 
 	protected:
@@ -199,6 +232,8 @@ namespace OpenGL {
 			this->trackBar1->Name = L"trackBar1";
 			this->trackBar1->Size = System::Drawing::Size(381, 56);
 			this->trackBar1->TabIndex = 6;
+			this->trackBar1->Maximum = 10.0;
+			this->trackBar1->TickFrequency = 1;
 			this->trackBar1->Scroll += gcnew System::EventHandler(this, &ToolWindow::trackBar1_Scroll);
 			// 
 			// label2
@@ -225,6 +260,8 @@ namespace OpenGL {
 			this->trackBar2->Name = L"trackBar2";
 			this->trackBar2->Size = System::Drawing::Size(381, 56);
 			this->trackBar2->TabIndex = 9;
+			this->trackBar2->Maximum = 128.0;
+			this->trackBar2->TickFrequency = 8;
 			this->trackBar2->Scroll += gcnew System::EventHandler(this, &ToolWindow::trackBar2_Scroll);
 			// 
 			// label4
@@ -251,6 +288,8 @@ namespace OpenGL {
 			this->trackBar3->Name = L"trackBar3";
 			this->trackBar3->Size = System::Drawing::Size(358, 56);
 			this->trackBar3->TabIndex = 12;
+			this->trackBar3->TickFrequency = 10;
+			this->trackBar3->Maximum = 100;
 			this->trackBar3->Scroll += gcnew System::EventHandler(this, &ToolWindow::trackBar3_Scroll);
 			// 
 			// label6
@@ -295,6 +334,8 @@ namespace OpenGL {
 			this->trackBar4->Name = L"trackBar4";
 			this->trackBar4->Size = System::Drawing::Size(358, 56);
 			this->trackBar4->TabIndex = 15;
+			this->trackBar4->TickFrequency = 10;
+			this->trackBar4->Maximum = 100;
 			this->trackBar4->Scroll += gcnew System::EventHandler(this, &ToolWindow::trackBar4_Scroll);
 			// 
 			// label10
@@ -321,6 +362,8 @@ namespace OpenGL {
 			this->trackBar5->Name = L"trackBar5";
 			this->trackBar5->Size = System::Drawing::Size(358, 56);
 			this->trackBar5->TabIndex = 18;
+			this->trackBar5->TickFrequency = 10;
+			this->trackBar5->Maximum = 100;
 			this->trackBar5->Scroll += gcnew System::EventHandler(this, &ToolWindow::trackBar5_Scroll);
 			// 
 			// checkBox1
@@ -500,28 +543,39 @@ namespace OpenGL {
 		moveLight = ((RadioButton^)sender)->Checked;
 	}
 	private: System::Void radioButton2_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
-		posColor = ((RadioButton^)sender)->Checked;
+		transform = ((RadioButton^)sender)->Checked;
 	}
 	private: System::Void radioButton3_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
-		cubeToSphere = ((RadioButton^)sender)->Checked;
+		waterScene = ((RadioButton^)sender)->Checked;
 	}
 	private: System::Void radioButton4_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
+		spaceScene = ((RadioButton^)sender)->Checked;
 	}
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 		isResetLightClicked = true;
 	}
 	private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
-		isResetSuzClicked = true;
+		isResetTransClicked = true;
 	}
 	private: System::Void trackBar1_Scroll(System::Object^ sender, System::EventArgs^ e) {
+		fighterRotation = ((TrackBar^)sender)->Value;
+		label2->Text = fighterRotation.ToString();
 	}
 	private: System::Void trackBar2_Scroll(System::Object^ sender, System::EventArgs^ e) {
+		specularStrength = ((TrackBar^)sender)->Value;
+		label3->Text = specularStrength.ToString();
 	}
 	private: System::Void trackBar3_Scroll(System::Object^ sender, System::EventArgs^ e) {
+		specularColorR = (float)((TrackBar^)sender)->Value / ((TrackBar^)sender)->Maximum;
+		label7->Text = specularColorR.ToString();
 	}
 	private: System::Void trackBar4_Scroll(System::Object^ sender, System::EventArgs^ e) {
+		specularColorG = (float)((TrackBar^)sender)->Value / ((TrackBar^)sender)->Maximum;
+		label8->Text = specularColorG.ToString();
 	}
 	private: System::Void trackBar5_Scroll(System::Object^ sender, System::EventArgs^ e) {
+		specularColorB = (float)((TrackBar^)sender)->Value / ((TrackBar^)sender)->Maximum;
+		label10->Text = specularColorB.ToString();
 	}
 	private: System::Void trackBar6_Scroll(System::Object^ sender, System::EventArgs^ e) {
 	}

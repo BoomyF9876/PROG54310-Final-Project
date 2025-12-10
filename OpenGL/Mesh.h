@@ -17,7 +17,16 @@ public:
 	glm::vec3 GetPosition() { return position; }
 	void SetScale(glm::vec3 _scale) { scale = _scale; }
 	void SetRotation(glm::vec3 _rotation) { rotation = _rotation; }
+	void SetRotationRate(float _rotation) { rotationRate = _rotation; }
+	void SetSpecularStrength(float _strength) { specularStrength = _strength; }
+	void SetSpecularColor(float _r, float _g, float _b) { specularColor = glm::vec3(_r, _g, _b); }
+	void ResetTransform() {
+		scale = initScale;
+		rotation = glm::vec3(0.0, 0.0, 0.0);
+		position = glm::vec3(0.0, 0.0, 0.0);
+	}
 	glm::vec3 GetRotation() { return rotation; }
+	glm::vec3 GetScale() { return scale; }
 	float GetRotationRate() { return rotationRate; }
 
 	void SetLightColor(glm::vec3 _lightColor) { lightColor = _lightColor; }
@@ -68,12 +77,13 @@ private:
 	glm::mat4 world = glm::mat4(1);
 	glm::vec3 position{ 0.0f, 0.0f, 0.0f };
 	glm::vec3 rotation{ 0.0f, 0.0f, 0.0f };
+	glm::vec3 initScale{ 1.0f, 1.0f, 1.0f };
 	glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 
 	glm::vec3 lightDirection{ 0.0f, 0.0f, 0.0f };
 	glm::vec3 lightColor{ 1.0f, 1.0f, 1.0f };
 	glm::vec3 ambientColor{ 0.1f, 0.1f, 0.1f };
-	glm::vec3 specularColor{ 0.1f, 0.1f, 0.1f };
+	glm::vec3 specularColor{ 1.0f, 1.0f, 1.0f };
 	float specularStrength = 1.0f;
 	float rotationRate = 0.0f;
 
@@ -90,7 +100,7 @@ private:
 
 	void LoadOBJ(const std::string& _file);
 	void LoadASE(std::string& _file);
-	
+
 	void SetShaderVariables(glm::mat4 _pv, Mesh* _lights);
 	void BindAttributes();
 	std::string Concat(const std::string& _s1, int _index, const std::string& _s2);
