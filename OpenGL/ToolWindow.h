@@ -19,8 +19,11 @@ namespace OpenGL {
 	public:
 		float specularStrength = 0.0, fighterRotation = 0.0;
 		float specularColorR = 0.0, specularColorG = 0.0, specularColorB = 0.0;
+		float waterFreq = 0.0, waterAmplitude = 0.0;
 		bool moveLight, transform, waterScene, spaceScene;
 		bool isResetLightClicked, isResetTransClicked;
+		bool isTranslateChecked = false, isRotateChecked = false, isScaleChecked = false;
+		bool isWireFrameChecked = false, isTintBlue = false;
 	private: System::Windows::Forms::RadioButton^ radioButton1;
 	private: System::Windows::Forms::RadioButton^ radioButton2;
 	private: System::Windows::Forms::RadioButton^ radioButton3;
@@ -414,6 +417,8 @@ namespace OpenGL {
 			this->trackBar6->Name = L"trackBar6";
 			this->trackBar6->Size = System::Drawing::Size(358, 56);
 			this->trackBar6->TabIndex = 25;
+			this->trackBar6->Maximum = 100;
+			this->trackBar6->TickFrequency = 10;
 			this->trackBar6->Scroll += gcnew System::EventHandler(this, &ToolWindow::trackBar6_Scroll);
 			// 
 			// label13
@@ -440,6 +445,8 @@ namespace OpenGL {
 			this->trackBar7->Name = L"trackBar7";
 			this->trackBar7->Size = System::Drawing::Size(358, 56);
 			this->trackBar7->TabIndex = 28;
+			this->trackBar6->Maximum = 100;
+			this->trackBar6->TickFrequency = 10;
 			this->trackBar7->Scroll += gcnew System::EventHandler(this, &ToolWindow::trackBar7_Scroll);
 			// 
 			// label15
@@ -578,18 +585,27 @@ namespace OpenGL {
 		label10->Text = specularColorB.ToString();
 	}
 	private: System::Void trackBar6_Scroll(System::Object^ sender, System::EventArgs^ e) {
+		waterFreq = (float)((TrackBar^)sender)->Value / ((TrackBar^)sender)->Maximum * 4;
+		label13->Text = waterFreq.ToString();
 	}
 	private: System::Void trackBar7_Scroll(System::Object^ sender, System::EventArgs^ e) {
+		waterAmplitude = (float)((TrackBar^)sender)->Value / ((TrackBar^)sender)->Maximum;
+		label14->Text = waterAmplitude.ToString();
 	}
 	private: System::Void checkBox1_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
+		isTranslateChecked = ((CheckBox^)sender)->Checked;
 	}
 	private: System::Void checkBox2_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
+		isRotateChecked = ((CheckBox^)sender)->Checked;
 	}
 	private: System::Void checkBox3_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
+		isScaleChecked = ((CheckBox^)sender)->Checked;
 	}
 	private: System::Void checkBox4_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
+		isWireFrameChecked = ((CheckBox^)sender)->Checked;
 	}
 	private: System::Void checkBox5_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
+		isTintBlue = ((CheckBox^)sender)->Checked;
 	}
 };
 }

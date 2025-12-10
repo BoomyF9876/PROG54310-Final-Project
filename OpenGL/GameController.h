@@ -45,7 +45,7 @@ public:
 		return itr->second;
 	}
 
-	void RenderMesh(std::string meshName);
+	void RenderMesh(std::string meshName, bool rotate = true);
 	void RenderMouseEventListener(OpenGL::ToolWindow^ toolWindow, Mesh* mesh, GLFWwindow* window, std::string meshKey, std::string shaderKey, std::string displayText);
 
 private:

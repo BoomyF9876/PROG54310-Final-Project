@@ -13,9 +13,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     GameController* gc = static_cast<GameController*>(glfwGetWindowUserPointer(window));
 }
 
-void GameController::RenderMesh(std::string meshName)
+void GameController::RenderMesh(std::string meshName, bool rotate)
 {
-    meshes[meshName]->SetRotation(meshes[meshName]->GetRotation() + Time::Instance().DeltaTime() * glm::vec3(meshes[meshName]->GetRotationRate(), 0.0f, 0.0f));
+    if (rotate) meshes[meshName]->SetRotation(meshes[meshName]->GetRotation() + Time::Instance().DeltaTime() * glm::vec3(meshes[meshName]->GetRotationRate(), 0.0f, 0.0f));
     meshes[meshName]->Render(camera->GetProjection() * camera->GetView(), light, meshCount);
 }
 
@@ -28,66 +28,110 @@ void GameController::RenderMouseEventListener(
     std::string displayText
 )
 {
+    int offset = 100;
     glm::vec3 cursorPos, displayPos;
     std::string leftPress = "Up", middlePress = "Up";
     Resolution res = WindowController::GetInstance().GetResolution();
 
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    if (toolWindow->moveLight || toolWindow->transform)
     {
-        cursorPos = glm::vec3(
-            (xpos - res.width / 2) * Time::Instance().DeltaTime() * 0.005f,
-            (res.height / 2 - ypos) * Time::Instance().DeltaTime() * 0.005f,
-            0
-        );
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        {
+            cursorPos = glm::vec3(
+                (xpos - res.width / 2) * Time::Instance().DeltaTime() * 0.005f,
+                (res.height / 2 - ypos) * Time::Instance().DeltaTime() * 0.005f,
+                0
+            );
 
-        mesh->SetPosition(mesh->GetPosition() + cursorPos);
-        leftPress = "Down";
-    }
+            if (
+                toolWindow->moveLight ||
+                (toolWindow->transform && toolWindow->isTranslateChecked)
+                )
+            {
+                mesh->SetPosition(mesh->GetPosition() + cursorPos);
+            }
 
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
-    {
-        cursorPos = glm::vec3(
-            0,
-            0,
-            (res.height / 2 - ypos) * Time::Instance().DeltaTime() * -0.005f
-        );
+            if (toolWindow->transform && toolWindow->isRotateChecked)
+            {
+                mesh->SetRotation(mesh->GetRotation() + cursorPos);
+            }
 
-        mesh->SetPosition(mesh->GetPosition() + cursorPos);
-        middlePress = "Down";
+            if (toolWindow->transform && toolWindow->isScaleChecked)
+            {
+                mesh->SetScale(mesh->GetScale() + cursorPos * 0.001f);
+            }
+
+            leftPress = "Down";
+        }
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
+        {
+            cursorPos = glm::vec3(
+                0,
+                0,
+                (res.height / 2 - ypos) * Time::Instance().DeltaTime() * -0.005f
+            );
+
+            if (
+                toolWindow->moveLight ||
+                (toolWindow->transform && toolWindow->isTranslateChecked)
+                )
+            {
+                mesh->SetPosition(mesh->GetPosition() + cursorPos);
+            }
+
+            if (toolWindow->transform && toolWindow->isRotateChecked)
+            {
+                mesh->SetRotation(mesh->GetRotation() + cursorPos * 2.0f);
+            }
+
+            if (toolWindow->transform && toolWindow->isScaleChecked)
+            {
+                mesh->SetScale(mesh->GetScale() + cursorPos * 0.01f);
+            }
+            middlePress = "Down";
+        }
     }
 
     if (toolWindow->moveLight && toolWindow->isResetLightClicked)
     {
+        camera->ResetCamera();
         mesh->SetPosition(glm::vec3(0, 0, 3.0f));
         toolWindow->isResetLightClicked = false;
     }
 
     if (toolWindow->transform && toolWindow->isResetTransClicked)
     {
+        camera->ResetCamera();
         mesh->ResetTransform();
         toolWindow->isResetTransClicked = false;
     }
 
-    textController->RenderText("Left Button: " + leftPress, 20, 130, 0.5f, txtColor);
-    textController->RenderText("Middle Button: " + middlePress, 20, 160, 0.5f, txtColor);
+    if (toolWindow->moveLight || toolWindow->transform)
+    {
+        textController->RenderText("Left Button: " + leftPress, 20, offset += 30, 0.5f, txtColor);
+        textController->RenderText("Middle Button: " + middlePress, 20, offset+=30, 0.5f, txtColor);
+    }
 
     displayPos = meshes[meshKey]->GetPosition();
     textController->RenderText(
-        "Fighter Position: {" + std::to_string(displayPos.x) + " " + std::to_string(displayPos.y) + " " + std::to_string(displayPos.z) + "}",
-        20, 190, 0.5f, txtColor
+        meshKey + " Position: {" + std::to_string(displayPos.x) + " " + std::to_string(displayPos.y) + " " + std::to_string(displayPos.z) + "}",
+        20, offset += 30, 0.5f, txtColor
     );
 
     displayPos = meshes[meshKey]->GetRotation();
     textController->RenderText(
-        "Fighter Rotation: {" + std::to_string(displayPos.x) + " " + std::to_string(displayPos.y) + " " + std::to_string(displayPos.z) + "}",
-        20, 220, 0.5f, txtColor
+        meshKey + " Rotation: {" + std::to_string(displayPos.x) + " " + std::to_string(displayPos.y) + " " + std::to_string(displayPos.z) + "}",
+        20, offset += 30, 0.5f, txtColor
     );
 
     displayPos = meshes[meshKey]->GetScale();
     textController->RenderText(
-        "Fighter Scale: {" + std::to_string(displayPos.x) + " " + std::to_string(displayPos.y) + " " + std::to_string(displayPos.z) + "}",
-        20, 250, 0.5f, txtColor
+        meshKey + " Scale: {" + std::to_string(displayPos.x) + " " + std::to_string(displayPos.y) + " " + std::to_string(displayPos.z) + "}",
+        20, offset += 30, 0.5f, txtColor
     );
+
+    RenderMesh(meshKey, toolWindow->moveLight);
 }
 
 void GameController::Initialize()
@@ -141,6 +185,7 @@ void GameController::RunGame()
             glm::mat4 view = glm::mat4(glm::mat3(camera->GetView()));
             skybox->Render(camera->GetProjection() * view);
             RenderMesh("FishInstance");
+            RenderMesh("Fighter");
         }
 
         if (toolWindow->moveLight) light->Render(camera->GetProjection() * camera->GetView(), light);
@@ -155,9 +200,8 @@ void GameController::RunGame()
 
         if (toolWindow->moveLight) RenderMouseEventListener(toolWindow, light, window, "Fighter", "Diffuse", "");
         if (toolWindow->transform) RenderMouseEventListener(toolWindow, meshes["Fighter"], window, "Fighter", "Diffuse", "");
-        
-        RenderMesh("Fighter");
-        
+        if (toolWindow->waterScene) RenderMouseEventListener(toolWindow, meshes["Fish"], window, "Fish", "Diffuse", "");
+
         if (postProcessor != nullptr) postProcessor->End();
 
         glfwSwapBuffers(window);

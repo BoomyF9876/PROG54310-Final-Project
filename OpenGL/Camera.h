@@ -15,6 +15,7 @@ public:
 	void SetProjection(Resolution _resolution);
 
 	void Rotate();
+	void ResetCamera();
 
 	glm::mat4 GetProjection() { return projection; }
 	glm::vec3 GetPosition() { return position; }
@@ -22,6 +23,7 @@ public:
 private:
 	glm::mat4 projection;
 	glm::vec3 position = {};
+	glm::vec3 initPos = {};
 	glm::mat4 view = {};
 
 	glm::vec3 lookAt = {};

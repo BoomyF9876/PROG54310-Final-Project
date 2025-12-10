@@ -31,7 +31,7 @@ void WindowController::NewWindow()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	Resolution r = WindowController::GetResolution();
-	window = glfwCreateWindow(r.width, r.height, "Sample", NULL, NULL);
+	window = glfwCreateWindow(r.width, r.height, "Final Project", NULL, NULL);
 	M_ASSERT((window != nullptr), "Failed");
 	glfwMakeContextCurrent(window);
 

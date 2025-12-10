@@ -17,13 +17,6 @@ Camera::Camera(Resolution& _resolution)
 	);
 }
 
-//void Camera::SetProjection(Resolution _resolution) {
-//	projection = glm::perspective(glm::radians(fov),
-//		(float)_resolution.width / (float)_resolution.height,
-//		near_plane,
-//		far_plane);
-//}
-
 void Camera::LookAt(const glm::vec3& _position, const glm::vec3& _lookAt, const glm::vec3& _up)
 {
 	position = _position;
@@ -47,6 +40,7 @@ void Camera::Create(Resolution& _resolution, json::JSON& jsonData)
         if (jsonCameraObject.hasKey("x")) CameraPosition.x = jsonCameraObject["x"].ToFloat();
         if (jsonCameraObject.hasKey("y")) CameraPosition.y = jsonCameraObject["y"].ToFloat();
         if (jsonCameraObject.hasKey("z")) CameraPosition.z = jsonCameraObject["z"].ToFloat();
+        initPos = CameraPosition;
     }
 
     if (jsonData.hasKey("LookAt"))
@@ -84,4 +78,12 @@ void Camera::Rotate()
 
         view = glm::lookAt(position, lookAt, glm::vec3(0, 1, 0));
     }
+}
+
+void Camera::ResetCamera()
+{
+    angle = 0.0f;
+    position = initPos;
+
+    view = glm::lookAt(position, lookAt, glm::vec3(0, 1, 0));
 }
