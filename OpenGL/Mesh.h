@@ -42,7 +42,7 @@ public:
 
 	void Create(json::JSON& jsonData);
 	void CalculateTransform();
-	void Render(glm::mat4 _pv, const std::list<Mesh*>& _lights, int count = 0);
+	void Render(glm::mat4 _pv, Mesh* _light, int count = 0);
 
 private:
 	Shader* shader = nullptr;
@@ -91,7 +91,7 @@ private:
 	void LoadOBJ(const std::string& _file);
 	void LoadASE(std::string& _file);
 	
-	void SetShaderVariables(glm::mat4 _pv, const std::list<Mesh*>& _lights);
+	void SetShaderVariables(glm::mat4 _pv, Mesh* _lights);
 	void BindAttributes();
 	std::string Concat(const std::string& _s1, int _index, const std::string& _s2);
 	std::string RemoveFolder(std::string& _map);

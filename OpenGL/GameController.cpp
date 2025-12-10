@@ -1,33 +1,75 @@
 #include "GameController.h"
 #include "WindowController.h"
-#include "ToolWindow.h"
+#include "TextController.h"
+#include "PostProcessor.h"
 #include "EngineTime.h"
 #include "Skybox.h"
-#include "PostProcessor.h"
+#include "Shader.h"
+#include "Mesh.h"
+#include "Font.h"
+#include "Camera.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     GameController* gc = static_cast<GameController*>(glfwGetWindowUserPointer(window));
-    
-    if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+}
+
+void GameController::RenderMesh(std::string meshName)
+{
+    meshes[meshName]->SetRotation(meshes[meshName]->GetRotation() + Time::Instance().DeltaTime() * glm::vec3(0.0f, meshes[meshName]->GetRotationRate(), 0.0f));
+    meshes[meshName]->Render(camera->GetProjection() * camera->GetView(), light, meshCount);
+}
+
+void GameController::RenderMouseEventListener(
+    OpenGL::ToolWindow^ toolWindow,
+    Mesh* mesh,
+    GLFWwindow* window,
+    std::string meshKey,
+    std::string shaderKey,
+    std::string displayText
+)
+{
+    double xpos, ypos;
+    glm::vec3 cursorPos, displayPos;
+    std::string printMsg;
+    Resolution res = WindowController::GetInstance().GetResolution();
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
-        if (gc->GetIt() == gc->GetEffectShaders().begin())
-        {
-            gc->GetIt() = --gc->GetEffectShaders().end();
-        }
-        else
-        {
-            gc->GetIt()--;
-        }
-        gc->GetProcessor()->SetShader(gc->GetIt()->first, gc->GetIt()->second);
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        cursorPos = glm::vec3(
+            (xpos - res.width / 2) * Time::Instance().DeltaTime() * 0.01f,
+            (res.height / 2 - ypos) * Time::Instance().DeltaTime() * 0.01f,
+            0
+        );
+
+        mesh->SetPosition(mesh->GetPosition() + cursorPos);
     }
-    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
     {
-        if (++gc->GetIt() == gc->GetEffectShaders().end())
-        {
-            gc->GetIt() = gc->GetEffectShaders().begin();
-        }
-        gc->GetProcessor()->SetShader(gc->GetIt()->first, gc->GetIt()->second);
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        cursorPos = glm::vec3(
+            0,
+            0,
+            (res.height / 2 - ypos) * Time::Instance().DeltaTime() * -0.01f
+        );
+
+        mesh->SetPosition(mesh->GetPosition() + cursorPos);
     }
+
+    if (toolWindow->isResetSuzClicked)
+    {
+        //meshes[meshKey]->SetPosition(glm::vec3(0, 0, 0));
+        toolWindow->isResetSuzClicked = false;
+    }
+    //meshes[meshKey]->SetShader(shaders[shaderKey]);
+    //RenderMesh(meshKey);
+
+    //displayPos = mesh->GetPosition();
+    //printMsg = displayText + std::to_string(displayPos.x) + ", " + std::to_string(displayPos.y) + ", " + std::to_string(displayPos.z);
+    //textController->RenderText(printMsg, 20, 60, 0.5f, { 1.0f, 0.5f, 1.0f });
 }
 
 void GameController::Initialize()
@@ -53,6 +95,8 @@ void GameController::Initialize()
 void GameController::RunGame()
 {
     GLFWwindow* window = WindowController::GetInstance().GetWindow();
+    OpenGL::ToolWindow^ toolWindow = gcnew OpenGL::ToolWindow();
+    toolWindow->Show();
     
     Time::Instance().Initialize();
 
@@ -74,20 +118,19 @@ void GameController::RunGame()
             skybox->Render(camera->GetProjection() * view);
         }
         
-        for (auto& light: lights)
-        {
-            light->Render(camera->GetProjection() * camera->GetView(), lights);
-        }
-        
+        light->Render(camera->GetProjection() * camera->GetView(), light);
+
+        if (toolWindow->moveLight) RenderMouseEventListener(toolWindow, light, window, "", "Diffuse", "");
+
         for (auto& mesh : meshes)
         {
-            mesh->SetRotation(mesh->GetRotation() + Time::Instance().DeltaTime() * glm::vec3(0.0f, mesh->GetRotationRate(), 0.0f));
-            mesh->Render(camera->GetProjection() * camera->GetView(), lights, meshCount);
+            mesh.second->SetRotation(mesh.second->GetRotation() + Time::Instance().DeltaTime() * glm::vec3(0.0f, mesh.second->GetRotationRate(), 0.0f));
+            mesh.second->Render(camera->GetProjection() * camera->GetView(), light, meshCount);
         }
 
         if (postProcessor != nullptr) postProcessor->End();
 
-        textController->RenderText(postProcessor->effect, 20, 60, 0.5f, {1.0f, 0.5f, 1.0f});
+        textController->RenderText(std::to_string(Time::Instance().FPS()), 20, 60, 0.5f, {1.0f, 0.5f, 1.0f});
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -99,13 +142,10 @@ void GameController::RunGame()
 
     for (auto& mesh : meshes)
     {
-        delete mesh;
+        delete mesh.second;
     }
 
-    for (auto& light: lights)
-    {
-        delete light;
-    }
+    delete light;
 
     for (auto& shader : shaders)
     {
@@ -191,22 +231,25 @@ void GameController::Load()
 
     document = LoadJson(defaultFile);
     
-    json::JSON& lightsJSON = Get(document, "Lights");
-    for (auto& lightJSON : lightsJSON.ArrayRange())
-    {
-        Mesh* light = new Mesh();
-        light->Create(lightJSON);
-        light->SetCameraPosition(camera->GetPosition());
-        lights.push_back(light);
-    }
+    json::JSON& lightJSON = Get(document, "Light");
+    light = new Mesh();
+    light->Create(lightJSON);
+    light->SetCameraPosition(camera->GetPosition());
 
-    json::JSON& meshesJSON = Get(document, "Meshes");
-    for (auto& meshJSON : meshesJSON.ArrayRange())
+    for (auto& meshJSON : document.ObjectRange())
     {
+        if (
+            meshJSON.first == "Light" ||
+            meshJSON.first == "Fonts" ||
+            meshJSON.first == "Skybox" ||
+            meshJSON.first == "TextController" ||
+            meshJSON.first == "PostProcessor"
+        ) continue;
+
         Mesh* mesh = new Mesh();
-        mesh->Create(meshJSON);
+        mesh->Create(meshJSON.second);
         mesh->SetCameraPosition(camera->GetPosition());
-        meshes.push_back(mesh);
+        meshes.emplace(meshJSON.first, mesh);
     }
 #pragma endregion
 

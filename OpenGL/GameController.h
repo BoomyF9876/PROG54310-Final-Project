@@ -4,13 +4,14 @@
 #define _GAMECONTROLLER_H_
 
 #include "StandardIncludes.h"
-#include "Shader.h"
-#include "Mesh.h"
-#include "Font.h"
-#include "Camera.h"
-#include "TextController.h"
+#include "ToolWindow.h"
 
+class Font;
+class Mesh;
+class Camera;
 class Skybox;
+class Shader;
+class TextController;
 class PostProcessor;
 
 class GameController
@@ -44,6 +45,9 @@ public:
 		return itr->second;
 	}
 
+	void RenderMesh(std::string meshName);
+	void RenderMouseEventListener(OpenGL::ToolWindow^ toolWindow, Mesh* mesh, GLFWwindow* window, std::string meshKey, std::string shaderKey, std::string displayText);
+
 private:
 	std::map<std::string, Shader*> shaders;
 	std::map<std::string, Shader*> effectShaders;
@@ -52,8 +56,8 @@ private:
 
 	PostProcessor* postProcessor = nullptr;
 	Skybox* skybox = nullptr;
-	std::list<Mesh*> meshes;
-	std::list<Mesh*> lights;
+	std::map<std::string, Mesh*> meshes;
+	Mesh* light;
 
 	TextController* textController = nullptr;
 	Camera* camera = nullptr;

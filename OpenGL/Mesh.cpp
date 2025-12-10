@@ -215,7 +215,7 @@ void Mesh::BindAttributes()
 
 }
 
-void Mesh::SetShaderVariables(glm::mat4 _pv, const std::list<Mesh*>& _lights)
+void Mesh::SetShaderVariables(glm::mat4 _pv, Mesh* _light)
 {
     shader->SetMat4("World", world);
     shader->SetMat4("WVP", _pv * world);
@@ -223,28 +223,23 @@ void Mesh::SetShaderVariables(glm::mat4 _pv, const std::list<Mesh*>& _lights)
     shader->SetInt("EnableInstancing", enableInstancing);
     shader->SetInt("EnableNormalMaps", enableNormalMaps);
 
-    M_ASSERT((_lights.size() <= 4), "Diffuse Shader only supports 4 lights");
-    shader->SetInt("numLights", _lights.size());
+    shader->SetInt("numLights", 1);
     shader->SetVec3("lightColor", lightColor);
+
     int i = 0;
-    for (auto& light : _lights)
-    {
-        shader->SetVec3(Concat("light[", i, "].position").c_str(), light->GetPosition());
-        shader->SetVec3(Concat("light[", i, "].direction").c_str(), light->GetLightDirection());
+    shader->SetVec3(Concat("light[", i, "].position").c_str(), _light->GetPosition());
+    shader->SetVec3(Concat("light[", i, "].direction").c_str(), _light->GetLightDirection());
 
-        shader->SetVec3(Concat("light[", i, "].ambientColor").c_str(), light->GetAmbientColor());
-        shader->SetVec3(Concat("light[", i, "].diffuseColor").c_str(), light->GetLightColor());
-        shader->SetVec3(Concat("light[", i, "].specularColor").c_str(), light->GetSpecularColor());
+    shader->SetVec3(Concat("light[", i, "].ambientColor").c_str(), _light->GetAmbientColor());
+    shader->SetVec3(Concat("light[", i, "].diffuseColor").c_str(), _light->GetLightColor());
+    shader->SetVec3(Concat("light[", i, "].specularColor").c_str(), _light->GetSpecularColor());
 
-        shader->SetFloat(Concat("light[", i, "].constant").c_str(), light->GetPointLightConstant());
-        shader->SetFloat(Concat("light[", i, "].linear").c_str(), light->GetPointLightLinear());
-        shader->SetFloat(Concat("light[", i, "].quadratic").c_str(), light->GetPointLightQuadratic());
+    shader->SetFloat(Concat("light[", i, "].constant").c_str(), _light->GetPointLightConstant());
+    shader->SetFloat(Concat("light[", i, "].linear").c_str(), _light->GetPointLightLinear());
+    shader->SetFloat(Concat("light[", i, "].quadratic").c_str(), _light->GetPointLightQuadratic());
 
-        shader->SetFloat(Concat("light[", i, "].coneAngle").c_str(), glm::radians(light->GetConeAngle()));
-        shader->SetFloat(Concat("light[", i, "].falloff").c_str(), light->GetFalloff());
-
-        i++;
-    }
+    shader->SetFloat(Concat("light[", i, "].coneAngle").c_str(), glm::radians(_light->GetConeAngle()));
+    shader->SetFloat(Concat("light[", i, "].falloff").c_str(), _light->GetFalloff());
 
     shader->SetFloat("material.specularStrength", specularStrength);
     shader->SetTextureSampler("material.diffuseTexture", GL_TEXTURE0, 0, diffuseTexture->GetTexture());
@@ -280,12 +275,12 @@ void Mesh::CalculateTangents(std::vector<objl::Vertex> _vertices, objl::Vector3&
     _bitangent.Z = f * (-deltaUV2.X * edge1.Z + deltaUV1.X * edge2.Z);
 }
 
-void Mesh::Render(glm::mat4 _wvp, const std::list<Mesh*>& _lights, int count)
+void Mesh::Render(glm::mat4 _wvp, Mesh* _light, int count)
 {
     glUseProgram(shader->GetProgramID());
 
     CalculateTransform();
-    SetShaderVariables(_wvp, _lights);
+    SetShaderVariables(_wvp, _light);
     BindAttributes();
 
     if (enableInstancing)

@@ -13,28 +13,28 @@
   "Shaders": [
     {
       "name": "Color",
-      "vertex": "Color.vertexshader.bin",
-      "fragment": "Color.fragmentshader.bin"
+      "vertex": "Color.vertexshader",
+      "fragment": "Color.fragmentshader"
     },
     {
       "name": "Diffuse",
-      "vertex": "Diffuse.vertexshader.bin",
-      "fragment": "Diffuse.fragmentshader.bin"
+      "vertex": "PointLightShader.vertexshader",
+      "fragment": "PointLightShader.fragmentshader"
     },
     {
       "name": "Font",
-      "vertex": "Font.vertexshader.bin",
-      "fragment": "Font.fragmentshader.bin"
+      "vertex": "Font.vertexshader",
+      "fragment": "Font.fragmentshader"
     },
     {
       "name": "Skybox",
-      "vertex": "Skybox.vertexshader.bin",
-      "fragment": "Skybox.fragmentshader.bin"
+      "vertex": "Skybox.vertexshader",
+      "fragment": "Skybox.fragmentshader"
     },
     {
-      "name": "DefaultPostProcessor",
-      "vertex": "PostProcessor.vertexshader.bin",
-      "fragment": "PostProcessor.fragmentshader.bin"
+      "name": "Default",
+      "vertex": "Postprocessor.vertexshader",
+      "fragment": "Postprocessor.fragmentshader"
     }
-  ]  
+  ]
 }

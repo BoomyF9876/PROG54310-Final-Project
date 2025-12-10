@@ -39,7 +39,7 @@
   },
   "PostProcessor":
   {
-    "Shader" : "DefaultPostProcessor"
+    "Shader" : "Default"
   },
   "Skybox":
   {
